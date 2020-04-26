@@ -1,6 +1,6 @@
 [package]
 name = "rocket-model-codegen"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Linas Nikiperavičius <linas@linasdev.com>"]
 license = "MIT"
 description = "Macros for generating model structs"
@@ -8,3 +8,6 @@ repository = "https://github.com/linasdev/rocket-model-codegen"
 edition = "2018"
 
 [dependencies]
+
+[lib]
+proc-macro = true
