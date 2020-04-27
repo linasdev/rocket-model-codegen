@@ -1,10 +1,8 @@
-#[macro_use]
-extern crate syn;
-
-use proc_macro::TokenStream;
+use quote::{ToTokens, quote};
+use syn::{parenthesized, braced, parse_macro_input};
+use syn::{Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, token};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
-use syn::{Visibility, Ident, Field, Token, token};
 
 enum GenField {
     Add(Field),
@@ -42,6 +40,7 @@ struct GenStruct {
     struct_token: Token![struct],
     name: Ident,
     parent: Option<GenParent>,
+    generics: Generics,
     brace_token: token::Brace,
     fields: Punctuated<GenField, Token![,]>,
 }
@@ -54,6 +53,7 @@ impl Parse for GenStruct {
             struct_token: input.parse()?,
             name: input.parse()?,
             parent: input.parse().ok(),
+            generics: input.parse()?,
             brace_token: braced!(content in input),
             fields: content.parse_terminated(GenField::parse)?,
         })
@@ -68,7 +68,36 @@ impl Parse for GenStructs {
     }
 }
 
+impl ToTokens for GenStructs {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        for gen_struct in &self.0 {
+            let named = Punctuated::new();
+
+            ItemStruct {
+                attrs: vec![],
+                vis: gen_struct.visibility.clone(),
+                struct_token: gen_struct.struct_token,
+                ident: gen_struct.name.clone(),
+                generics: gen_struct.generics.clone(),
+                fields: Fields::Named(FieldsNamed {
+                    brace_token: gen_struct.brace_token,
+                    named
+                }),
+                semi_token: None,
+            }.to_tokens(tokens);
+        }
+    }
+}
+
 #[proc_macro]
-pub fn gen_structs(input: TokenStream) -> TokenStream {
-    input
+pub fn gen_structs(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let gen_structs = parse_macro_input!(input as GenStructs);
+
+    let token_stream = quote! {
+        #gen_structs
+    };
+
+    println!("{}", token_stream.to_string());
+
+    token_stream.into()
 }
