@@ -1,6 +1,6 @@
 use quote::{ToTokens, quote};
-use syn::{braced, parse_macro_input};
-use syn::{Attribute, Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, token};
+use syn::{braced, parse_macro_input, parse_quote};
+use syn::{Attribute, Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, Type, token};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 
@@ -50,6 +50,7 @@ struct MetaStruct {
     struct_token: Token![struct],
     name: Ident,
     generics: Generics,
+    question_token: Option<Token![?]>,
     brace_token: token::Brace,
     fields: MetaFields,
 }
@@ -63,6 +64,7 @@ impl Parse for MetaStruct {
             struct_token: input.parse()?,
             name: input.parse()?,
             generics: input.parse()?,
+            question_token: input.parse().ok(),
             brace_token: braced!(content in input),
             fields: content.parse()?,
         })
@@ -109,6 +111,18 @@ impl ToTokens for MetaStructs {
                     }
     
                     named.push(field.clone());
+                }
+
+                if meta_struct.question_token.is_some() {
+                    named = named.into_iter().map(|f| {
+                        let orig = f.ty;
+                        Field {
+                            ty: parse_quote! {
+                                Option<#orig>
+                            },
+                            ..f 
+                        }
+                    }).collect();
                 }
             }
 
