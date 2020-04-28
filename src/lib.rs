@@ -150,7 +150,5 @@ pub fn gen_structs(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         #meta_structs
     };
 
-    println!("{}", token_stream);
-
     token_stream.into()
 }
