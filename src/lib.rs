@@ -1,6 +1,6 @@
 use quote::{ToTokens, quote};
 use syn::{braced, parse_macro_input};
-use syn::{Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, token};
+use syn::{Attribute, Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, token};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 
@@ -45,6 +45,7 @@ impl Parse for MetaFields {
 }
 
 struct MetaStruct {
+    attrs: Vec<Attribute>,
     visibility: Visibility,
     struct_token: Token![struct],
     name: Ident,
@@ -57,6 +58,7 @@ impl Parse for MetaStruct {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
         Ok(MetaStruct {
+            attrs: input.call(Attribute::parse_outer)?,
             visibility: input.parse()?,
             struct_token: input.parse()?,
             name: input.parse()?,
@@ -105,7 +107,7 @@ impl ToTokens for MetaStructs {
             }
 
             ItemStruct {
-                attrs: vec![],
+                attrs: meta_struct.attrs.clone(),
                 vis: meta_struct.visibility.clone(),
                 struct_token: meta_struct.struct_token,
                 ident: meta_struct.name.clone(),
