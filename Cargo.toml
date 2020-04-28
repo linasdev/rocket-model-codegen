@@ -1,6 +1,6 @@
 [package]
 name = "rocket-model-codegen"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Linas Nikiperavičius <linas@linasdev.com>"]
 license = "MIT"
 description = "Macros for generating model structs"

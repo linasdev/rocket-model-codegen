@@ -1,6 +1,6 @@
 use quote::{ToTokens, quote};
 use syn::{braced, parse_macro_input, parse_quote};
-use syn::{Attribute, Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, Type, token};
+use syn::{Attribute, Visibility, Ident, Field, Fields, FieldsNamed, Token, ItemStruct, Generics, token};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 
