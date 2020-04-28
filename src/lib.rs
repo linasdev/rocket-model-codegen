@@ -69,11 +69,17 @@ impl Parse for MetaStruct {
     }
 }
 
-struct MetaStructs(Punctuated<MetaStruct, Token![,]>);
+struct MetaStructs(Vec<MetaStruct>);
 
 impl Parse for MetaStructs {
     fn parse(input: ParseStream) -> Result<Self> {
-        Ok(MetaStructs(Punctuated::parse_terminated(input)?))
+        let mut structs = vec![];
+
+        while !input.is_empty() {
+            structs.push(input.parse()?);
+        }
+
+        Ok(MetaStructs(structs))
     }
 }
 
